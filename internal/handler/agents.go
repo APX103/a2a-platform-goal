@@ -117,6 +117,7 @@ func RegisterAgent(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		var body struct {
 			URL       string `json:"url"`
 			AgentType string `json:"type"`
+			Name      string `json:"name"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
@@ -128,7 +129,7 @@ func RegisterAgent(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		conn, err := svcCtx.Registry.ConnectByURL(body.URL, body.AgentType)
+		conn, err := svcCtx.Registry.ConnectByURL(body.URL, body.AgentType, body.Name)
 		if err != nil {
 			writeJSON(w, http.StatusBadGateway, map[string]string{"error": "failed to connect to agent: " + err.Error()})
 			return

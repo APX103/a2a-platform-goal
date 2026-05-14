@@ -641,7 +641,7 @@ func TestProxyAgent(t *testing.T) {
 	bus.setRegistry(func(name string) *testClient { return nil })
 
 	// Register the fake agent via ConnectByURL (fetches agent card from upstream)
-	_, err = reg.ConnectByURL(upstream.URL, "")
+	_, err = reg.ConnectByURL(upstream.URL, "", "")
 	if err != nil {
 		t.Fatalf("connect by url: %v", err)
 	}

@@ -61,7 +61,7 @@ func TestConnectAndDisconnect(t *testing.T) {
 	reg := NewWithRetry(repository.NewAgentRepository(db), 1, 10*time.Millisecond)
 
 	// Connect
-	conn, err := reg.ConnectByURL(server.URL, "chat")
+	conn, err := reg.ConnectByURL(server.URL, "chat", "")
 	if err != nil {
 		t.Fatalf("ConnectByURL failed: %v", err)
 	}
@@ -128,7 +128,7 @@ func TestReconnect(t *testing.T) {
 	reg := NewWithRetry(repository.NewAgentRepository(db), 1, 10*time.Millisecond)
 
 	// Connect
-	_, err := reg.ConnectByURL(server.URL, "chat")
+	_, err := reg.ConnectByURL(server.URL, "chat", "")
 	if err != nil {
 		t.Fatalf("first connect failed: %v", err)
 	}
@@ -137,7 +137,7 @@ func TestReconnect(t *testing.T) {
 	reg.Disconnect("test-agent")
 
 	// Reconnect
-	conn2, err := reg.ConnectByURL(server.URL, "chat")
+	conn2, err := reg.ConnectByURL(server.URL, "chat", "")
 	if err != nil {
 		t.Fatalf("reconnect failed: %v", err)
 	}
@@ -168,13 +168,13 @@ func TestConnectDuplicate(t *testing.T) {
 
 	reg := NewWithRetry(repository.NewAgentRepository(db), 1, 10*time.Millisecond)
 
-	_, err := reg.ConnectByURL(server.URL, "chat")
+	_, err := reg.ConnectByURL(server.URL, "chat", "")
 	if err != nil {
 		t.Fatalf("first connect failed: %v", err)
 	}
 
 	// Connect same agent again - should overwrite
-	_, err = reg.ConnectByURL(server.URL, "chat")
+	_, err = reg.ConnectByURL(server.URL, "chat", "")
 	if err != nil {
 		t.Fatalf("duplicate connect failed: %v", err)
 	}
@@ -196,7 +196,7 @@ func TestListAgents(t *testing.T) {
 	reg := NewWithRetry(repository.NewAgentRepository(db), 1, 10*time.Millisecond)
 
 	// Connect an agent
-	_, err := reg.ConnectByURL(server.URL, "chat")
+	_, err := reg.ConnectByURL(server.URL, "chat", "")
 	if err != nil {
 		t.Fatalf("ConnectByURL failed: %v", err)
 	}
@@ -256,7 +256,7 @@ func TestDeleteAgent(t *testing.T) {
 
 	reg := NewWithRetry(repository.NewAgentRepository(db), 1, 10*time.Millisecond)
 
-	_, err := reg.ConnectByURL(server.URL, "chat")
+	_, err := reg.ConnectByURL(server.URL, "chat", "")
 	if err != nil {
 		t.Fatalf("ConnectByURL failed: %v", err)
 	}
@@ -317,7 +317,7 @@ func TestConnectWithRetry(t *testing.T) {
 
 	reg := NewWithRetry(repository.NewAgentRepository(db), 3, 10*time.Millisecond)
 
-	conn, err := reg.ConnectByURL(server.URL, "task")
+	conn, err := reg.ConnectByURL(server.URL, "task", "")
 	if err != nil {
 		t.Fatalf("ConnectByURL with retry failed: %v", err)
 	}
@@ -341,7 +341,7 @@ func TestConnectFailure(t *testing.T) {
 	}))
 	defer server.Close()
 
-	_, err := reg.ConnectByURL(server.URL, "chat")
+	_, err := reg.ConnectByURL(server.URL, "chat", "")
 	if err == nil {
 		t.Fatal("expected error when server returns 500")
 	}

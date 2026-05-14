@@ -41,6 +41,12 @@ func New(repo repository.AgentRepository) *Registry {
 
 // NewWithRetry creates a new Registry with custom retry settings.
 func NewWithRetry(repo repository.AgentRepository, retryMax int, baseDelay time.Duration) *Registry {
+	if retryMax <= 0 {
+		retryMax = 3
+	}
+	if baseDelay <= 0 {
+		baseDelay = time.Second
+	}
 	return &Registry{
 		repo:        repo,
 		connections: make(map[string]*AgentConnection),
@@ -51,7 +57,8 @@ func NewWithRetry(repo repository.AgentRepository, retryMax int, baseDelay time.
 
 // ConnectByURL fetches an AgentCard from the given URL, retries with exponential
 // backoff on failure, and stores the connection in memory and the database.
-func (r *Registry) ConnectByURL(url, agentType string) (*AgentConnection, error) {
+// If nameOverride is non-empty, it is used instead of the card's Name field.
+func (r *Registry) ConnectByURL(url, agentType, nameOverride string) (*AgentConnection, error) {
 	client := a2a.NewClient(url)
 
 	var card *a2a.AgentCard
@@ -70,8 +77,14 @@ func (r *Registry) ConnectByURL(url, agentType string) (*AgentConnection, error)
 	if err != nil {
 		return nil, fmt.Errorf("connect to %s: %w", url, err)
 	}
+	if card == nil {
+		return nil, fmt.Errorf("connect to %s: received nil agent card", url)
+	}
 
-	name := card.Name
+	name := nameOverride
+	if name == "" {
+		name = card.Name
+	}
 	if name == "" {
 		name = url
 	}

@@ -77,9 +77,22 @@ func handleEcho(w http.ResponseWriter, r *http.Request) {
 	// Extract text from the JSON-RPC params
 	text := ""
 	if params, ok := body["params"].(map[string]interface{}); ok {
+		// Try params.messages (plural) first
 		if messages, ok := params["messages"].([]interface{}); ok && len(messages) > 0 {
 			if lastMsg, ok := messages[len(messages)-1].(map[string]interface{}); ok {
 				if parts, ok := lastMsg["parts"].([]interface{}); ok && len(parts) > 0 {
+					if part, ok := parts[0].(map[string]interface{}); ok {
+						if t, ok := part["text"].(string); ok {
+							text = t
+						}
+					}
+				}
+			}
+		}
+		// Also try params.message (singular)
+		if text == "" {
+			if message, ok := params["message"].(map[string]interface{}); ok {
+				if parts, ok := message["parts"].([]interface{}); ok && len(parts) > 0 {
 					if part, ok := parts[0].(map[string]interface{}); ok {
 						if t, ok := part["text"].(string); ok {
 							text = t

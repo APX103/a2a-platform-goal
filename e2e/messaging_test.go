@@ -1,3 +1,5 @@
+// +build !docker
+
 package e2e
 
 import (
