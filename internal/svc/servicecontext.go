@@ -38,6 +38,17 @@ func NewServiceContext(c *config.Config) *ServiceContext {
 		panic("init db: " + err.Error())
 	}
 
+	return newServiceContextFromDB(db, c)
+}
+
+// NewServiceContextWithDB creates a ServiceContext using an externally-provided
+// database connection (useful for testing with in-memory databases).
+func NewServiceContextWithDB(db *sql.DB, c *config.Config) *ServiceContext {
+	return newServiceContextFromDB(db, c)
+}
+
+// newServiceContextFromDB builds a ServiceContext from an already-open DB.
+func newServiceContextFromDB(db *sql.DB, c *config.Config) *ServiceContext {
 	agentRepo := repository.NewAgentRepository(db)
 	taskRepo := repository.NewTaskRepository(db)
 	messageRepo := repository.NewMessageRepository(db)
