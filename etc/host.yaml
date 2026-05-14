@@ -1,0 +1,7 @@
+Host: "0.0.0.0"
+Port: 7860
+DataSource: "file:a2a_platform.db?cache=shared&_journal_mode=WAL"
+Timeout: 30000
+AgentRetryMax: 3
+AgentRetryBaseDelay: 1
+LogLevel: info
