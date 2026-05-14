@@ -359,6 +359,22 @@ func (e *TestEnv) PostRaw(t *testing.T, path string, body string, contentType st
 	return string(respBody), resp.StatusCode
 }
 
+// DeleteRaw performs a DELETE request with optional extra headers and returns response body and status code.
+func (e *TestEnv) DeleteRaw(t *testing.T, path string, extraHeaders map[string]string) (string, int) {
+	t.Helper()
+	req, _ := http.NewRequest("DELETE", e.HostURL+path, nil)
+	for k, v := range extraHeaders {
+		req.Header.Set(k, v)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("DELETE raw %s: %v", path, err)
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+	return string(respBody), resp.StatusCode
+}
+
 // GetRaw performs a GET request with custom headers and returns response body and status code.
 func (e *TestEnv) GetRaw(t *testing.T, path string, headers map[string]string) (string, int) {
 	t.Helper()
