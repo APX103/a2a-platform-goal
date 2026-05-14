@@ -4,18 +4,15 @@ services:
     build:
       context: ..
       dockerfile: e2e/Dockerfile.host
-    ports:
-      - "${HOST_PORT:-7860}:7860"
     environment:
       - DATA_SOURCE=file:/data/a2a_platform.db
-    volumes:
-      - host-data:/data
+    ports:
+      - "7860:7860"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:7860/api/capabilities"]
       interval: 5s
       timeout: 3s
       retries: 10
-    depends_on: []
 
   fake-agent-a:
     build:
@@ -47,5 +44,19 @@ services:
     ports:
       - "10003:10003"
 
-volumes:
-  host-data:
+  e2e-test:
+    build:
+      context: ..
+      dockerfile: e2e/docker-e2e-test.Dockerfile
+    environment:
+      - HOST_URL=http://host:7860
+      - FAKE_AGENT_A_URL=http://fake-agent-a:10001
+      - FAKE_AGENT_B_URL=http://fake-agent-b:10002
+      - LLM_AGENT_URL=http://llm-agent:10003
+    depends_on:
+      host:
+        condition: service_healthy
+      fake-agent-a:
+        condition: service_started
+      fake-agent-b:
+        condition: service_started

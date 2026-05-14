@@ -1,6 +1,7 @@
 # Binaries
 /fake_agent
 /host
+/llm_agent
 
 # OS
 .DS_Store
