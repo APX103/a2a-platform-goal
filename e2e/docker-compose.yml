@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  host:
+    build:
+      context: ..
+      dockerfile: e2e/Dockerfile.host
+    ports:
+      - "${HOST_PORT:-7860}:7860"
+    environment:
+      - DATA_SOURCE=file:/data/a2a_platform.db
+    volumes:
+      - host-data:/data
+    depends_on: []
+
+  fake-agent-a:
+    build:
+      context: ..
+      dockerfile: e2e/Dockerfile.agent
+    environment:
+      - PORT=10001
+    ports:
+      - "10001:10001"
+
+  fake-agent-b:
+    build:
+      context: ..
+      dockerfile: e2e/Dockerfile.agent
+    environment:
+      - PORT=10002
+    ports:
+      - "10002:10002"
+
+volumes:
+  host-data:

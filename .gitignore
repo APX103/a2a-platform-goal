@@ -1,0 +1,15 @@
+# Binaries
+/fake_agent
+/host
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data
+*.db
