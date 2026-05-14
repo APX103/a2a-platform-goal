@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	"a2a-platform/internal/model"
 )
 
 // TestMessaging_Echo sends "hello" to echo agent via proxy and verifies response contains "hello".
@@ -378,6 +380,56 @@ func TestMessaging_ContextContinuation(t *testing.T) {
 	// since SendStreaming creates a new task each time it's called)
 	if len(tasksArr) < 2 {
 		t.Fatalf("expected at least 2 tasks for ctx-agent, got %d", len(tasksArr))
+	}
+}
+
+// TestMessaging_CreateTask creates a task directly via MessageBus and verifies DB persistence and API retrieval.
+func TestMessaging_CreateTask(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	// Create a task directly via MessageBus
+	task, err := env.SvcCtx.MessageBus.CreateTask("agent-a")
+	if err != nil {
+		t.Fatalf("create_task failed: %v", err)
+	}
+
+	// Verify UUID format (non-empty)
+	if task.LocalTaskID == "" {
+		t.Fatal("expected non-empty local_task_id")
+	}
+
+	// Verify it can be read back from the repo
+	got, err := env.SvcCtx.TaskRepo.Get(task.LocalTaskID)
+	if err != nil {
+		t.Fatalf("get task failed: %v", err)
+	}
+	if got.LocalTaskID != task.LocalTaskID {
+		t.Errorf("expected task_id=%s, got %s", task.LocalTaskID, got.LocalTaskID)
+	}
+	if got.AgentName != "agent-a" {
+		t.Errorf("expected agent_name=agent-a, got %s", got.AgentName)
+	}
+	if got.State != model.TaskStateSubmitted {
+		t.Errorf("expected state=SUBMITTED, got %s", got.State)
+	}
+
+	// Verify via API
+	tasks, status := env.GetJSONArray(t, "/api/tasks?agent_name=agent-a")
+	if status != 200 {
+		t.Fatalf("expected 200, got %d", status)
+	}
+	found := false
+	for _, tt := range tasks {
+		if m, ok := tt.(map[string]interface{}); ok {
+			if m["local_task_id"] == task.LocalTaskID {
+				found = true
+				break
+			}
+		}
+	}
+	if !found {
+		t.Error("task not found in API response")
 	}
 }
 

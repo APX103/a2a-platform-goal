@@ -335,6 +335,33 @@ func TestDiscovery_NonexistentTaskTrace(t *testing.T) {
 	}
 }
 
+// TestDiscovery_GetErrorAgentDetail verifies that GET /api/agents/{name} returns
+// the error_message field for an agent with status=error.
+func TestDiscovery_GetErrorAgentDetail(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	// Directly insert an error agent into the DB with an error_message,
+	// without registering to in-memory connections.
+	env.RegisterAgentWithDBAndError(t, "failing-agent", "http://localhost:9999", "test", "error",
+		"connection refused after 3 retries")
+
+	// Query the detail endpoint
+	agent, status := env.GetJSON(t, "/api/agents/failing-agent")
+	if status != 200 {
+		t.Fatalf("expected 200, got %d", status)
+	}
+	if agent["name"] != "failing-agent" {
+		t.Errorf("expected name=failing-agent, got %v", agent["name"])
+	}
+	if agent["status"] != "error" {
+		t.Errorf("expected status=error, got %v", agent["status"])
+	}
+	if agent["error_message"] != "connection refused after 3 retries" {
+		t.Errorf("expected error_message='connection refused after 3 retries', got %v", agent["error_message"])
+	}
+}
+
 // TestDiscovery_ErrorAgentDisplay verifies an error-status agent appears in list.
 func TestDiscovery_ErrorAgentDisplay(t *testing.T) {
 	env := SetupTestEnv(t)

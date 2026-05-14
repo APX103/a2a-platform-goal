@@ -18,15 +18,16 @@ func GetAgents(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		// Parse SkillsJSON into Skills field for each agent
 		type agentOut struct {
-			Name        string      `json:"name"`
-			URL         string      `json:"url"`
-			Description string      `json:"description"`
-			Version     string      `json:"version"`
-			AgentType   string      `json:"type"`
-			Status      string      `json:"status"`
-			Skills      []string    `json:"skills"`
-			CreatedAt   string      `json:"created_at"`
-			UpdatedAt   string      `json:"updated_at"`
+			Name         string   `json:"name"`
+			URL          string   `json:"url"`
+			Description  string   `json:"description"`
+			Version      string   `json:"version"`
+			AgentType    string   `json:"type"`
+			Status       string   `json:"status"`
+			Skills       []string `json:"skills"`
+			ErrorMessage string   `json:"error_message,omitempty"`
+			CreatedAt    string   `json:"created_at"`
+			UpdatedAt    string   `json:"updated_at"`
 		}
 
 		out := make([]agentOut, len(agents))
@@ -36,15 +37,16 @@ func GetAgents(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				_ = json.Unmarshal([]byte(a.SkillsJSON), &skills)
 			}
 			out[i] = agentOut{
-				Name:        a.Name,
-				URL:         a.URL,
-				Description: a.Description,
-				Version:     a.Version,
-				AgentType:   a.AgentType,
-				Status:      string(a.Status),
-				Skills:      skills,
-				CreatedAt:   a.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-				UpdatedAt:   a.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+				Name:         a.Name,
+				URL:          a.URL,
+				Description:  a.Description,
+				Version:      a.Version,
+				AgentType:    a.AgentType,
+				Status:       string(a.Status),
+				Skills:       skills,
+				ErrorMessage: a.ErrorMessage,
+				CreatedAt:    a.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+				UpdatedAt:    a.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
 			}
 		}
 
@@ -72,7 +74,7 @@ func GetAgent(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			_ = json.Unmarshal([]byte(agent.SkillsJSON), &skills)
 		}
 
-		writeJSON(w, http.StatusOK, map[string]interface{}{
+		out := map[string]interface{}{
 			"name":        agent.Name,
 			"url":         agent.URL,
 			"description": agent.Description,
@@ -82,7 +84,11 @@ func GetAgent(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			"skills":      skills,
 			"created_at":  agent.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 			"updated_at":  agent.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		})
+		}
+		if agent.ErrorMessage != "" {
+			out["error_message"] = agent.ErrorMessage
+		}
+		writeJSON(w, http.StatusOK, out)
 	}
 }
 

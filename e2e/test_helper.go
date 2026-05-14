@@ -271,6 +271,19 @@ func (e *TestEnv) RegisterAgentWithDB(t *testing.T, name, url, agentType, status
 	}
 }
 
+// RegisterAgentWithDBAndError directly inserts an agent into the database with a specific error message.
+func (e *TestEnv) RegisterAgentWithDBAndError(t *testing.T, name, url, agentType, status, errorMessage string) {
+	t.Helper()
+	_ = e.SvcCtx.Registry.UpsertAgent(&model.AgentRecord{
+		Name:      name,
+		URL:       url,
+		AgentType: agentType,
+	})
+	if status != "" {
+		_ = e.SvcCtx.AgentRepo.UpdateStatus(name, model.AgentStatus(status), errorMessage)
+	}
+}
+
 // GetJSON performs a GET request and returns the parsed JSON and status code.
 func (e *TestEnv) GetJSON(t *testing.T, path string) (map[string]interface{}, int) {
 	t.Helper()
