@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A2A Platform - 使用文档</title>
+<style>
+  :root {
+    --color-bg: #f8f9fb;
+    --color-sidebar-bg: #1e293b;
+    --color-sidebar-text: #cbd5e1;
+    --color-sidebar-active: #60a5fa;
+    --color-sidebar-hover: #334155;
+    --color-primary: #2563eb;
+    --color-primary-light: #dbeafe;
+    --color-text: #1e293b;
+    --color-text-secondary: #64748b;
+    --color-code-bg: #1e293b;
+    --color-code-text: #e2e8f0;
+    --color-border: #e2e8f0;
+    --color-table-stripe: #f1f5f9;
+    --color-success: #16a34a;
+    --color-warning: #d97706;
+    --color-error: #dc2626;
+    --color-info: #2563eb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.7;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--color-sidebar-bg);
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px;
+    border-bottom: 1px solid #334155;
+  }
+
+  .sidebar-header h1 {
+    color: #f1f5f9;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .sidebar-header .version {
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .sidebar nav {
+    padding: 12px 0;
+  }
+
+  .sidebar nav a {
+    display: block;
+    padding: 8px 20px;
+    color: var(--color-sidebar-text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.15s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .sidebar nav a:hover {
+    background: var(--color-sidebar-hover);
+    color: #f1f5f9;
+  }
+
+  .sidebar nav a.active {
+    color: var(--color-sidebar-active);
+    border-left-color: var(--color-sidebar-active);
+    background: rgba(96, 165, 250, 0.08);
+  }
+
+  .sidebar nav .nav-section {
+    padding: 16px 20px 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #475569;
+    font-weight: 600;
+  }
+
+  /* Main content */
+  .main {
+    margin-left: 260px;
+    padding: 40px 48px 80px;
+    max-width: 960px;
+  }
+
+  .main h2 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 48px 0 16px;
+    color: var(--color-text);
+    letter-spacing: -0.5px;
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 8px;
+    display: inline-block;
+  }
+
+  .main h2:first-child {
+    margin-top: 0;
+  }
+
+  .main h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    color: var(--color-text);
+  }
+
+  .main h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 24px 0 8px;
+    color: var(--color-text);
+  }
+
+  .main p {
+    margin: 8px 0 16px;
+    color: var(--color-text);
+  }
+
+  .main ul, .main ol {
+    margin: 8px 0 16px 24px;
+  }
+
+  .main li {
+    margin: 4px 0;
+  }
+
+  /* Code blocks */
+  pre {
+    background: var(--color-code-bg);
+    color: var(--color-code-text);
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", Menlo, monospace;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  code {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", Menlo, monospace;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 14px;
+  }
+
+  th {
+    background: #f1f5f9;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    border-bottom: 2px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td {
+    background: var(--color-table-stripe);
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: monospace;
+    vertical-align: middle;
+  }
+
+  .badge-get { background: #dcfce7; color: #166534; }
+  .badge-post { background: #dbeafe; color: #1e40af; }
+  .badge-delete { background: #fee2e2; color: #991b1b; }
+
+  /* Info boxes */
+  .info-box {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  .info-box.tip {
+    background: #ecfdf5;
+    border-left: 4px solid var(--color-success);
+    color: #065f46;
+  }
+
+  .info-box.warning {
+    background: #fffbeb;
+    border-left: 4px solid var(--color-warning);
+    color: #92400e;
+  }
+
+  .info-box.note {
+    background: #eff6ff;
+    border-left: 4px solid var(--color-info);
+    color: #1e40af;
+  }
+
+  /* ASCII diagram */
+  .diagram {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text);
+  }
+
+  /* Endpoint card */
+  .endpoint {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+
+  .endpoint-header {
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--color-border);
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .endpoint-body {
+    padding: 16px;
+  }
+
+  /* Scrollbar */
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .sidebar {
+      width: 200px;
+    }
+    .main {
+      margin-left: 200px;
+      padding: 24px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h1>A2A Platform</h1>
+    <div class="version">v0.1.0</div>
+  </div>
+  <nav>
+    <div class="nav-section">入门</div>
+    <a href="#overview">平台概述</a>
+    <a href="#quickstart">快速开始</a>
+    <a href="#config">配置说明</a>
+
+    <div class="nav-section">API</div>
+    <a href="#api-reference">API 参考</a>
+    <a href="#agent-registration">Agent 接入</a>
+    <a href="#agent-development">Agent 开发</a>
+
+    <div class="nav-section">深入</div>
+    <a href="#sse-events">SSE 事件格式</a>
+    <a href="#trace">Trace 追踪</a>
+
+    <div class="nav-section">运维</div>
+    <a href="#testing">测试</a>
+    <a href="#docker">Docker Compose 部署</a>
+  </nav>
+</aside>
+
+<main class="main">
+
+<!-- ======================== 1. 平台概述 ======================== -->
+<h2 id="overview">1. 平台概述</h2>
+
+<p>
+  <strong>A2A Platform</strong> 是一个基于 <a href="https://github.com/A2A-Protocol/A2A" target="_blank">A2A (Agent-to-Agent) 协议</a> 的主机控制平面（Host Control Plane）。
+  它为多个 AI Agent 提供统一的发现、通信、任务管理和追踪能力，使 Agent 之间可以透明地互相对话。
+</p>
+
+<h3>核心概念</h3>
+<ul>
+  <li><strong>Host（主机）</strong> — 本平台。负责 Agent 注册、消息路由、任务生命周期管理和调用追踪。</li>
+  <li><strong>Agent（代理）</strong> — 任何实现了 A2A 协议的服务。通过 AgentCard 自描述，通过 JSON-RPC 接收消息。</li>
+  <li><strong>AgentCard</strong> — Agent 的自描述文件，暴露在 <code>/.well-known/agent.json</code>，包含名称、技能、版本等信息。</li>
+  <li><strong>Task（任务）</strong> — 一次 Agent 交互的完整生命周期，状态包括 SUBMITTED、WORKING、COMPLETED、FAILED 等。</li>
+  <li><strong>SSE 事件流</strong> — Agent 通过 Server-Sent Events 向 Host 实时推送任务状态更新和消息。</li>
+  <li><strong>Trace（追踪）</strong> — 记录每次 Agent 交互的完整事件链，便于调试和审计。</li>
+</ul>
+
+<h3>平台架构</h3>
+
+<div class="diagram">
+<pre>
+                    +-------------------+
+                    |     客户端/用户     |
+                    +--------+----------+
+                             |
+                    HTTP REST / SSE
+                             |
+                    +--------v----------+
+                    |   Host Platform   |
+                    |                   |
+                    |  +-------------+  |        +-----------------+
+                    |  |  Registry   |------->  |  SQLite / DB     |
+                    |  +-------------+  |        +-----------------+
+                    |  | MessageBus  |  |
+                    |  +------+------+  |
+                    |  | Tracer     |  |
+                    |  +------+------+  |
+                    |  | Proxy      |  |
+                    |  +-------------+  |
+                    +--------+----------+
+                             |
+               +-------------+-------------+
+               |             |             |
+        +------v----+ +------v----+ +------v----+
+        | Agent A   | | Agent B   | | Agent C   |
+        | (A2A)     | | (A2A)     | | (A2A)     |
+        +-----------+ +-----------+ +-----------+
+</pre>
+</div>
+
+<h3>技术栈</h3>
+<table>
+  <tr><td>语言</td><td>Go 1.25</td></tr>
+  <tr><td>Web 框架</td><td>go-zero (rest)</td></tr>
+  <tr><td>数据库</td><td>SQLite (modernc.org/sqlite, 纯 Go 实现)</td></tr>
+  <tr><td>协议</td><td>A2A Protocol v1.0, JSON-RPC 2.0, SSE</td></tr>
+</table>
+
+<!-- ======================== 2. 快速开始 ======================== -->
+<h2 id="quickstart">2. 快速开始</h2>
+
+<h3>2.1 环境要求</h3>
+<ul>
+  <li>Go 1.25+</li>
+  <li>Git</li>
+</ul>
+
+<h3>2.2 构建并运行 Host</h3>
+
+<pre><code># 克隆仓库
+git clone &lt;repo-url&gt; a2a_platform
+cd a2a_platform
+
+# 构建 Host 二进制文件
+go build -o bin/host ./cmd/host
+
+# 启动 Host（默认监听 0.0.0.0:7860）
+./bin/host -f etc/host.yaml</code></pre>
+
+<p>启动成功后输出：</p>
+<pre><code>A2A Host started on 0.0.0.0:7860</code></pre>
+
+<h3>2.3 验证服务</h3>
+
+<pre><code># 查看平台能力
+curl http://localhost:7860/api/capabilities
+
+# 查看已注册 Agent 列表（初始为空）
+curl http://localhost:7860/api/agents</code></pre>
+
+<h3>2.4 快捷命令（Makefile）</h3>
+
+<pre><code>make host         # 直接运行 Host（开发模式）
+make fake-agent   # 运行测试用 Fake Agent
+make test         # 运行所有单元测试
+make e2e          # 运行端到端测试
+make clean        # 清理数据库和测试缓存</code></pre>
+
+<!-- ======================== 3. 配置说明 ======================== -->
+<h2 id="config">3. 配置说明</h2>
+
+<p>Host 的配置文件位于 <code>etc/host.yaml</code>，基于 go-zero 的 <code>rest.RestConf</code> 扩展。</p>
+
+<h3>配置示例</h3>
+<pre><code>Host: "0.0.0.0"
+Port: 7860
+DataSource: "file:a2a_platform.db?cache=shared&_journal_mode=WAL"
+Timeout: 30000
+AgentRetryMax: 3
+AgentRetryBaseDelay: 1
+LogLevel: info</code></pre>
+
+<h3>配置项说明</h3>
+<table>
+  <tr>
+    <th>配置项</th>
+    <th>类型</th>
+    <th>默认值</th>
+    <th>说明</th>
+  </tr>
+  <tr>
+    <td><code>Host</code></td>
+    <td>string</td>
+    <td><code>0.0.0.0</code></td>
+    <td>HTTP 监听地址</td>
+  </tr>
+  <tr>
+    <td><code>Port</code></td>
+    <td>int</td>
+    <td><code>7860</code></td>
+    <td>HTTP 监听端口</td>
+  </tr>
+  <tr>
+    <td><code>DataSource</code></td>
+    <td>string</td>
+    <td><code>file:a2a_platform.db?cache=shared&amp;_journal_mode=WAL</code></td>
+    <td>SQLite 数据源连接字符串。支持 <code>:memory:</code> 用于测试。</td>
+  </tr>
+  <tr>
+    <td><code>Timeout</code></td>
+    <td>int</td>
+    <td><code>30000</code></td>
+    <td>HTTP 请求超时（毫秒）</td>
+  </tr>
+  <tr>
+    <td><code>AgentRetryMax</code></td>
+    <td>int</td>
+    <td><code>3</code></td>
+    <td>连接 Agent 时最大重试次数</td>
+  </tr>
+  <tr>
+    <td><code>AgentRetryBaseDelay</code></td>
+    <td>int</td>
+    <td><code>1</code></td>
+    <td>重试基础延迟（秒），采用指数退避策略</td>
+  </tr>
+  <tr>
+    <td><code>LogLevel</code></td>
+    <td>string</td>
+    <td><code>info</code></td>
+    <td>日志级别：debug / info / error / severe</td>
+  </tr>
+</table>
+
+<div class="info-box tip">
+  <strong>重试策略：</strong>Registry 连接 Agent 时，重试延迟为 <code>baseDelay * 2^attempt</code>。
+  默认配置下，三次重试的等待时间分别为 1s、2s、4s。
+</div>
+
+<!-- ======================== 4. API 参考 ======================== -->
+<h2 id="api-reference">4. API 参考</h2>
+
+<p>所有 API 均使用 JSON 格式。基础路径为 <code>http://&lt;host&gt;:&lt;port&gt;</code>。</p>
+
+<!-- 4.1 GET /api/agents -->
+<h3>4.1 GET /api/agents</h3>
+<p>获取所有已注册 Agent 列表。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span> /api/agents
+  </div>
+  <div class="endpoint-body">
+    <p><strong>请求示例：</strong></p>
+    <pre><code>curl http://localhost:7860/api/agents</code></pre>
+    <p><strong>响应示例：</strong></p>
+    <pre><code>[
+  {
+    "name": "weather-agent",
+    "url": "http://localhost:10001",
+    "description": "Weather forecast agent",
+    "version": "1.0.0",
+    "type": "",
+    "status": "connected",
+    "skills": ["weather_forecast"],
+    "created_at": "2026-05-14T10:00:00+08:00",
+    "updated_at": "2026-05-14T10:00:00+08:00"
+  }
+]</code></pre>
+  </div>
+</div>
+
+<!-- 4.2 GET /api/agents/:name -->
+<h3>4.2 GET /api/agents/:name</h3>
+<p>获取指定 Agent 的详细信息。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span> /api/agents/<strong>:name</strong>
+  </div>
+  <div class="endpoint-body">
+    <p><strong>请求示例：</strong></p>
+    <pre><code>curl http://localhost:7860/api/agents/weather-agent</code></pre>
+    <p><strong>响应示例：</strong></p>
+    <pre><code>{
+  "name": "weather-agent",
+  "url": "http://localhost:10001",
+  "description": "Weather forecast agent",
+  "version": "1.0.0",
+  "type": "",
+  "status": "connected",
+  "skills": ["weather_forecast"],
+  "created_at": "2026-05-14T10:00:00+08:00",
+  "updated_at": "2026-05-14T10:00:00+08:00"
+}</code></pre>
+    <p><strong>错误响应：</strong></p>
+    <pre><code>// 404 Not Found
+{"error": "Agent 'unknown-agent' not found"}</code></pre>
+  </div>
+</div>
+
+<!-- 4.3 POST /api/agents/register -->
+<h3>4.3 POST /api/agents/register</h3>
+<p>通过 Agent URL 远程注册。Host 会自动获取 AgentCard 并建立连接。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-post">POST</span> /api/agents/register
+  </div>
+  <div class="endpoint-body">
+    <p><strong>请求体：</strong></p>
+    <table>
+      <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+      <tr><td><code>url</code></td><td>string</td><td>是</td><td>Agent 的基础 URL（会自动拼接 <code>/.well-known/agent.json</code>）</td></tr>
+      <tr><td><code>type</code></td><td>string</td><td>否</td><td>Agent 类型标识</td></tr>
+    </table>
+    <p><strong>请求示例：</strong></p>
+    <pre><code>curl -X POST http://localhost:7860/api/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{"url": "http://localhost:10001", "type": "weather"}'</code></pre>
+    <p><strong>响应示例：</strong></p>
+    <pre><code>// 201 Created
+{
+  "status": "connected",
+  "name": "weather-agent",
+  "url": "http://localhost:10001",
+  "type": "weather",
+  "version": "1.0.0"
+}</code></pre>
+    <p><strong>错误响应：</strong></p>
+    <pre><code>// 400 Bad Request
+{"error": "url is required"}
+
+// 502 Bad Gateway
+{"error": "failed to connect to agent: fetch agent card: connection refused"}</code></pre>
+  </div>
+</div>
+
+<!-- 4.4 POST /api/agents -->
+<h3>4.4 POST /api/agents</h3>
+<p>便捷注册接口，与 <code>/api/agents/register</code> 行为完全一致。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-post">POST</span> /api/agents
+  </div>
+  <div class="endpoint-body">
+    <p><strong>请求示例：</strong></p>
+    <pre><code>curl -X POST http://localhost:7860/api/agents \
+  -H "Content-Type: application/json" \
+  -d '{"url": "http://localhost:10001"}'</code></pre>
+  </div>
+</div>
+
+<!-- 4.5 DELETE /api/agents/:name -->
+<h3>4.5 DELETE /api/agents/:name</h3>
+<p>删除指定 Agent 的注册信息。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-delete">DELETE</span> /api/agents/<strong>:name</strong>
+  </div>
+  <div class="endpoint-body">
+    <p><strong>请求示例：</strong></p>
+    <pre><code>curl -X DELETE http://localhost:7860/api/agents/weather-agent</code></pre>
+    <p><strong>响应示例：</strong></p>
+    <pre><code>{
+  "status": "deleted",
+  "name": "weather-agent"
+}</code></pre>
+  </div>
+</div>
+
+<!-- 4.6 GET /api/capabilities -->
+<h3>4.6 GET /api/capabilities</h3>
+<p>获取平台的能力声明和可用工具列表。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span> /api/capabilities
+  </div>
+  <div class="endpoint-body">
+    <p><strong>请求示例：</strong></p>
+    <pre><code>curl http://localhost:7860/api/capabilities</code></pre>
+    <p><strong>响应示例：</strong></p>
+    <pre><code>{
+  "name": "a2a-platform-host",
+  "description": "A2A protocol host platform",
+  "version": "0.1.0",
+  "capabilities": {
+    "streaming": true
+  },
+  "tools": [
+    {
+      "name": "list_agents",
+      "description": "List all agents registered on the A2A platform",
+      "parameters": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "send_to_agent",
+      "description": "Send a message to another agent on the platform",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "agent_name": { "type": "string", "description": "The name of the target agent" },
+          "message": { "type": "string", "description": "The message content to send" }
+        },
+        "required": ["agent_name", "message"]
+      }
+    },
+    {
+      "name": "get_agent_info",
+      "description": "Get detailed information about a specific agent",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "agent_name": { "type": "string", "description": "The name of the agent to query" }
+        },
+        "required": ["agent_name"]
+      }
+    }
+  ]
+}</code></pre>
+  </div>
+</div>
+
+<!-- 4.7 GET /api/tasks -->
+<h3>4.7 GET /api/tasks</h3>
+<p>查询任务列表，支持按 Agent 名称和状态过滤。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span> /api/tasks
+  </div>
+  <div class="endpoint-body">
+    <p><strong>查询参数：</strong></p>
+    <table>
+      <tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr>
+      <tr><td><code>agent_name</code></td><td>string</td><td>否</td><td>按 Agent 名称过滤</td></tr>
+      <tr><td><code>state</code></td><td>string</td><td>否</td><td>按任务状态过滤</td></tr>
+    </table>
+    <p><strong>请求示例：</strong></p>
+    <pre><code># 查看所有任务
+curl http://localhost:7860/api/tasks
+
+# 按状态过滤
+curl "http://localhost:7860/api/tasks?state=COMPLETED"
+
+# 按 Agent 过滤
+curl "http://localhost:7860/api/tasks?agent_name=weather-agent"</code></pre>
+    <p><strong>响应示例：</strong></p>
+    <pre><code>[
+  {
+    "local_task_id": "task_20260514_001",
+    "agent_name": "weather-agent",
+    "context_id": "",
+    "state": "RESPONDED",
+    "display_id": "",
+    "created_at": "2026-05-14T10:05:00+08:00",
+    "updated_at": "2026-05-14T10:05:01+08:00"
+  }
+]</code></pre>
+    <p><strong>任务状态枚举：</strong></p>
+    <table>
+      <tr><td><code>SUBMITTED</code></td><td>任务已提交</td></tr>
+      <tr><td><code>WORKING</code></td><td>Agent 正在处理</td></tr>
+      <tr><td><code>INPUT_REQUIRED</code></td><td>需要用户输入</td></tr>
+      <tr><td><code>COMPLETED</code></td><td>任务已完成</td></tr>
+      <tr><td><code>RESPONDED</code></td><td>Agent 已响应</td></tr>
+      <tr><td><code>FAILED</code></td><td>任务失败</td></tr>
+      <tr><td><code>ERROR</code></td><td>发生错误</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 4.8 GET /api/tasks/:id/trace -->
+<h3>4.8 GET /api/tasks/:id/trace</h3>
+<p>获取指定任务的调试追踪信息（纯文本格式）。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span> /api/tasks/<strong>:id</strong>/trace
+  </div>
+  <div class="endpoint-body">
+    <p><strong>请求示例：</strong></p>
+    <pre><code>curl http://localhost:7860/api/tasks/task_20260514_001/trace</code></pre>
+    <p><strong>响应示例（text/plain）：</strong></p>
+    <pre><code>[send] content="What is the weather?" agent="weather-agent"
+[task_created] server_task_id="abc-123"
+[task_update] SUBMITTED -> WORKING
+[response] text="Today is sunny, 25C" source="weather-agent"</code></pre>
+  </div>
+</div>
+
+<!-- 4.9 POST /api/chat -->
+<h3>4.9 POST /api/chat</h3>
+<p>向指定 Agent 发送消息，通过 SSE 流式返回事件。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-post">POST</span> /api/chat <small>(SSE)</small>
+  </div>
+  <div class="endpoint-body">
+    <p><strong>请求体：</strong></p>
+    <table>
+      <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+      <tr><td><code>agent_name</code></td><td>string</td><td>是</td><td>目标 Agent 名称</td></tr>
+      <tr><td><code>message</code></td><td>string</td><td>是</td><td>消息内容</td></tr>
+      <tr><td><code>context_id</code></td><td>string</td><td>否</td><td>上下文 ID，用于关联多轮对话</td></tr>
+    </table>
+    <p><strong>请求示例：</strong></p>
+    <pre><code>curl -N -X POST http://localhost:7860/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"agent_name": "weather-agent", "message": "What is the weather?"}'</code></pre>
+    <p><strong>SSE 响应流：</strong></p>
+    <pre><code>data: {"local_task_id":"task_001","agent_name":"weather-agent","state":"SUBMITTED"}
+
+data: {"type":"task","data":{"server_task_id":"abc-123","state":"SUBMITTED"}}
+
+data: {"type":"status_update","data":{"old_state":"SUBMITTED","new_state":"WORKING"}}
+
+data: {"type":"message","data":{"role":"agent","text":"Today is sunny, 25C"}}
+
+data: {"type":"response","data":{"text":"Today is sunny, 25C"}}</code></pre>
+    <div class="info-box note">
+      <strong>提示：</strong>使用 <code>curl -N</code> 禁用缓冲，实时查看 SSE 流。
+      也可使用 <code>-H "Accept: text/event-stream"</code> 明确指定接受 SSE。
+    </div>
+  </div>
+</div>
+
+<!-- 4.10 POST /agent/:name -->
+<h3>4.10 POST /agent/:name</h3>
+<p>SSE 代理端点。将请求透明转发到已连接的 Agent，支持路径和查询参数透传。</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge badge-post">POST</span> /agent/<strong>:name</strong> <small>(SSE Proxy)</small>
+  </div>
+  <div class="endpoint-body">
+    <p><strong>路径规则：</strong></p>
+    <pre><code>/agent/&lt;name&gt;              -> http://&lt;agent-url&gt;/
+/agent/&lt;name&gt;/path        -> http://&lt;agent-url&gt;/path
+/agent/&lt;name&gt;/path?q=1    -> http://&lt;agent-url&gt;/path?q=1</code></pre>
+    <p><strong>请求示例（发送 JSON-RPC 消息）：</strong></p>
+    <pre><code>curl -N -X POST http://localhost:7860/agent/weather-agent \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "1",
+    "method": "SendStreamingMessage",
+    "params": {
+      "message": {
+        "role": "user",
+        "parts": [{"kind": "text", "text": "Hello"}]
+      }
+    }
+  }'</code></pre>
+    <p><strong>代理特性：</strong></p>
+    <ul>
+      <li>自动注入 <code>A2A-Version: 1.0</code> 请求头（如未设置）</li>
+      <li>自动剥离 Hop-by-Hop 头部（Connection、Keep-Alive、Transfer-Encoding 等）</li>
+      <li>完整转发响应头和状态码</li>
+      <li>支持 SSE 流式响应的实时转发</li>
+    </ul>
+    <div class="info-box warning">
+      <strong>注意：</strong>Agent 必须已通过 <code>/api/agents/register</code> 注册且状态为 <code>connected</code>，否则返回 404。
+    </div>
+  </div>
+</div>
+
+<!-- ======================== 5. Agent 接入 ======================== -->
+<h2 id="agent-registration">5. Agent 接入</h2>
+
+<p>本平台支持三种 Agent 注册方式：</p>
+
+<h3>5.1 远程自动注册（推荐）</h3>
+<p>启动 Agent 服务后，调用注册接口，Host 自动拉取 AgentCard 并建立连接：</p>
+
+<pre><code>curl -X POST http://localhost:7860/api/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{"url": "http://your-agent:8080"}'</code></pre>
+
+<p>Host 会自动完成以下步骤：</p>
+<ol>
+  <li>请求 <code>http://your-agent:8080/.well-known/agent.json</code> 获取 AgentCard</li>
+  <li>解析 Agent 名称、版本、技能等信息</li>
+  <li>将信息持久化到数据库</li>
+  <li>在内存中创建 A2A Client 连接</li>
+  <li>连接失败时自动重试（指数退避，最多 <code>AgentRetryMax</code> 次）</li>
+</ol>
+
+<h3>5.2 动态 API 注册</h3>
+<p>通过 <code>POST /api/agents</code> 接口注册，行为与远程注册相同：</p>
+
+<pre><code>curl -X POST http://localhost:7860/api/agents \
+  -H "Content-Type: application/json" \
+  -d '{"url": "http://your-agent:8080", "type": "custom"}'</code></pre>
+
+<h3>5.3 直接数据库写入（高级）</h3>
+<p>通过 Registry 的 <code>UpsertAgent</code> 方法直接写入数据库。这种方式不会创建实时连接，适用于静态预配置场景。通常在测试或初始化脚本中使用。</p>
+
+<div class="info-box tip">
+  <strong>最佳实践：</strong>生产环境推荐使用方式 1（远程自动注册）。Agent 服务启动后，在自身的健康检查或启动流程中调用 Host 注册接口。
+</div>
+
+<!-- ======================== 6. Agent 开发 ======================== -->
+<h2 id="agent-development">6. Agent 开发</h2>
+
+<p>开发一个符合 A2A 协议的 Agent 需要实现两个核心端点：</p>
+
+<h3>6.1 AgentCard 端点</h3>
+
+<p>Agent 必须在 <code>GET /.well-known/agent.json</code> 返回自描述信息：</p>
+
+<pre><code>GET /.well-known/agent.json
+
+{
+  "name": "my-agent",
+  "description": "A custom A2A agent that does X",
+  "version": "1.0.0",
+  "url": "http://my-agent:8080",
+  "capabilities": {
+    "streaming": true
+  },
+  "skills": [
+    {
+      "id": "skill-1",
+      "name": "Translate",
+      "description": "Translate text between languages",
+      "tags": ["translation", "nlp"],
+      "examples": ["Translate 'hello' to French"]
+    }
+  ],
+  "supportedInterfaces": ["A2A/1.0"]
+}</code></pre>
+
+<h4>AgentCard 字段说明</h4>
+<table>
+  <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+  <tr><td><code>name</code></td><td>string</td><td>是</td><td>Agent 唯一标识名称</td></tr>
+  <tr><td><code>description</code></td><td>string</td><td>是</td><td>Agent 功能描述</td></tr>
+  <tr><td><code>version</code></td><td>string</td><td>是</td><td>语义版本号</td></tr>
+  <tr><td><code>url</code></td><td>string</td><td>是</td><td>Agent 的基础 URL</td></tr>
+  <tr><td><code>capabilities</code></td><td>object</td><td>是</td><td>能力声明，<code>streaming</code> 表示是否支持 SSE</td></tr>
+  <tr><td><code>skills</code></td><td>array</td><td>否</td><td>技能列表</td></tr>
+  <tr><td><code>supportedInterfaces</code></td><td>array</td><td>否</td><td>支持的接口版本</td></tr>
+</table>
+
+<h3>6.2 JSON-RPC 消息端点</h3>
+
+<p>Agent 必须在 <code>POST /</code> 接收 JSON-RPC 2.0 请求：</p>
+
+<pre><code>POST /
+Content-Type: application/json
+Accept: text/event-stream
+A2A-Version: 1.0
+
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "method": "SendStreamingMessage",
+  "params": {
+    "message": {
+      "role": "user",
+      "parts": [{"kind": "text", "text": "Hello, agent!"}]
+    },
+    "taskId": "optional-task-id",
+    "contextId": "optional-context-id"
+  }
+}</code></pre>
+
+<h3>6.3 SSE 流式响应</h3>
+
+<p>支持 SSE 的 Agent 应返回 <code>Content-Type: text/event-stream</code>：</p>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Type: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
+
+data: {"type":"status_update","data":{"state":"WORKING"}}
+
+data: {"type":"message","data":{"role":"agent","parts":[{"kind":"text","text":"Hello! How can I help?"}]}}
+
+data: {"type":"status_update","data":{"state":"COMPLETED"}}</code></pre>
+
+<h3>6.4 最小 Agent 示例（Go）</h3>
+
+<pre><code>package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    mux := http.NewServeMux()
+
+    // AgentCard
+    mux.HandleFunc("/.well-known/agent.json", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+            "name":        "my-agent",
+            "description": "My custom A2A agent",
+            "version":     "1.0.0",
+            "url":         "http://localhost:8080",
+            "capabilities": map[string]bool{"streaming": true},
+            "skills":      []map[string]string{
+                {"id": "greet", "name": "Greet", "description": "Say hello"},
+            },
+        })
+    })
+
+    // JSON-RPC endpoint
+    mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        if r.Method != http.MethodPost {
+            http.Error(w, "method not allowed", 405)
+            return
+        }
+
+        var req map[string]interface{}
+        json.NewDecoder(r.Body).Decode(&amp;req)
+
+        // SSE response
+        w.Header().Set("Content-Type", "text/event-stream")
+        w.Header().Set("Cache-Control", "no-cache")
+        w.Header().Set("Connection", "keep-alive")
+
+        event, _ := json.Marshal(map[string]interface{}{
+            "type": "message",
+            "data": map[string]interface{}{
+                "role": "agent",
+                "parts": []map[string]string{
+                    {"kind": "text", "text": "Hello from my-agent!"},
+                },
+            },
+        })
+        w.Write([]byte("data: " + string(event) + "\n\n"))
+        if f, ok := w.(http.Flusher); ok {
+            f.Flush()
+        }
+    })
+
+    fmt.Println("Agent running on :8080")
+    http.ListenAndServe(":8080", mux)
+}</code></pre>
+
+<!-- ======================== 7. SSE 事件格式 ======================== -->
+<h2 id="sse-events">7. SSE 事件格式</h2>
+
+<p>A2A 协议通过 Server-Sent Events (SSE) 实现实时通信。所有 SSE 事件的 data 字段为 JSON，包含 <code>type</code> 和 <code>data</code> 两个顶层字段。</p>
+
+<h3>7.1 事件类型总览</h3>
+
+<table>
+  <tr>
+    <th>type 值</th>
+    <th>说明</th>
+    <th>触发时机</th>
+  </tr>
+  <tr>
+    <td><code>task</code></td>
+    <td>任务创建通知</td>
+    <td>Agent 创建或确认任务时</td>
+  </tr>
+  <tr>
+    <td><code>status_update</code></td>
+    <td>任务状态变更</td>
+    <td>Agent 开始/完成/暂停处理时</td>
+  </tr>
+  <tr>
+    <td><code>artifact_update</code></td>
+    <td>产物更新</td>
+    <td>Agent 产出文件、代码等结构化产物时</td>
+  </tr>
+  <tr>
+    <td><code>message</code></td>
+    <td>消息</td>
+    <td>Agent 发送文本回复时</td>
+  </tr>
+  <tr>
+    <td><code>response</code></td>
+    <td>最终响应（平台层）</td>
+    <td>Host 整合所有事件后发出的最终响应</td>
+  </tr>
+</table>
+
+<h3>7.2 task 事件</h3>
+
+<pre><code>data: {"type":"task","data":{"server_task_id":"abc-123","state":"SUBMITTED"}}</code></pre>
+
+<table>
+  <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+  <tr><td><code>data.server_task_id</code></td><td>string</td><td>Agent 端的任务 ID</td></tr>
+  <tr><td><code>data.state</code></td><td>string</td><td>任务初始状态</td></tr>
+</table>
+
+<h3>7.3 status_update 事件</h3>
+
+<pre><code>data: {"type":"status_update","data":{"old_state":"SUBMITTED","new_state":"WORKING"}}</code></pre>
+
+<table>
+  <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+  <tr><td><code>data.old_state</code></td><td>string</td><td>变更前状态（Host 记录）</td></tr>
+  <tr><td><code>data.new_state</code></td><td>string</td><td>变更后状态</td></tr>
+</table>
+
+<h3>7.4 artifact_update 事件</h3>
+
+<pre><code>data: {"type":"artifact_update","data":{"artifact":{"name":"generated_code","parts":[{"kind":"text","text":"function hello() {...}"}]}}}</code></pre>
+
+<table>
+  <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+  <tr><td><code>data.artifact.name</code></td><td>string</td><td>产物名称</td></tr>
+  <tr><td><code>data.artifact.parts</code></td><td>array</td><td>产物内容片段列表</td></tr>
+</table>
+
+<h3>7.5 message 事件</h3>
+
+<pre><code>data: {"type":"message","data":{"role":"agent","text":"Hello! How can I help you?"}}</code></pre>
+
+<table>
+  <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+  <tr><td><code>data.role</code></td><td>string</td><td>消息角色：<code>user</code> 或 <code>agent</code></td></tr>
+  <tr><td><code>data.text</code></td><td>string</td><td>消息文本内容</td></tr>
+</table>
+
+<h3>7.6 SSE 线路格式</h3>
+
+<p>标准 SSE 格式，每条消息以 <code>data: </code> 开头，空行分隔：</p>
+
+<pre><code>data: {"type":"status_update","data":{"state":"WORKING"}}
+
+data: {"type":"message","data":{"role":"agent","text":"Processing your request..."}}
+
+data: {"type":"status_update","data":{"state":"COMPLETED"}}</code></pre>
+
+<div class="info-box note">
+  <strong>SSE vs 非 SSE：</strong>如果 Agent 不支持 SSE，Host 也能处理普通的 JSON 响应。此时整个响应体会被包装为一个 <code>type: "message"</code> 事件。
+</div>
+
+<!-- ======================== 8. Trace 追踪 ======================== -->
+<h2 id="trace">8. Trace 追踪</h2>
+
+<p>Tracer 记录每次 Agent 交互的完整事件链，是调试和排错的利器。</p>
+
+<h3>8.1 追踪事件类型</h3>
+
+<table>
+  <tr><th>事件类型</th><th>说明</th><th>数据字段</th></tr>
+  <tr>
+    <td><code>send</code></td>
+    <td>消息发送</td>
+    <td><code>{"content": "..."}</code></td>
+  </tr>
+  <tr>
+    <td><code>task_created</code></td>
+    <td>任务创建</td>
+    <td><code>{"server_task_id": "..."}</code></td>
+  </tr>
+  <tr>
+    <td><code>task_update</code></td>
+    <td>任务状态变更</td>
+    <td><code>{"old_state": "...", "new_state": "..."}</code></td>
+  </tr>
+  <tr>
+    <td><code>artifact</code></td>
+    <td>产物产出</td>
+    <td><code>{"text": "..."}</code></td>
+  </tr>
+  <tr>
+    <td><code>response</code></td>
+    <td>Agent 响应</td>
+    <td><code>{"text": "...", "source": "agent-name"}</code></td>
+  </tr>
+  <tr>
+    <td><code>error</code></td>
+    <td>错误</td>
+    <td><code>{"error": "..."}</code></td>
+  </tr>
+</table>
+
+<h3>8.2 查看 Trace</h3>
+
+<p>使用 <code>GET /api/tasks/:id/trace</code> 获取纯文本格式的调试追踪：</p>
+
+<pre><code># 先获取任务列表，找到 task ID
+curl http://localhost:7860/api/tasks
+
+# 查看追踪
+curl http://localhost:7860/api/tasks/task_20260514_001/trace</code></pre>
+
+<p>输出示例：</p>
+<pre><code>[send] content="What is the weather?" agent="weather-agent"
+[task_created] server_task_id="abc-123"
+[task_update] SUBMITTED -> WORKING
+[artifact] text="Weather data: 25C, sunny"
+[response] text="Weather data: 25C, sunny" source="weather-agent"</code></pre>
+
+<h3>8.3 完整调试流程</h3>
+
+<pre><code># 1. 发送消息并记录 Task ID
+curl -N -X POST http://localhost:7860/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"agent_name": "weather-agent", "message": "Weather?"}'
+
+# 响应中会包含 local_task_id，例如 "task_001"
+
+# 2. 查看任务状态
+curl http://localhost:7860/api/tasks?agent_name=weather-agent
+
+# 3. 如果任务失败，查看完整追踪
+curl http://localhost:7860/api/tasks/task_001/trace</code></pre>
+
+<!-- ======================== 9. 测试 ======================== -->
+<h2 id="testing">9. 测试</h2>
+
+<h3>9.1 单元测试</h3>
+
+<p>各模块均包含单元测试，可使用 <code>go test</code> 运行：</p>
+
+<pre><code># 运行所有单元测试
+make test
+# 等同于
+go test ./... -v
+
+# 运行特定包的测试
+go test ./internal/registry/... -v
+go test ./pkg/a2a/... -v
+go test ./internal/handler/... -v</code></pre>
+
+<h3>9.2 端到端测试</h3>
+
+<p>E2E 测试位于 <code>e2e/</code> 目录，使用内存 SQLite 数据库和 httptest 启动测试 Host 和 Fake Agent：</p>
+
+<pre><code># 运行所有 E2E 测试
+make e2e
+# 等同于
+go test ./e2e/... -v
+
+# 运行特定 E2E 测试
+go test ./e2e/... -v -run TestMessaging
+go test ./e2e/... -v -run TestDiscovery
+go test ./e2e/... -v -run TestTracing
+go test ./e2e/... -v -run TestToolCall</code></pre>
+
+<h3>9.3 测试覆盖范围</h3>
+
+<table>
+  <tr><th>测试文件</th><th>测试用例数</th><th>覆盖范围</th></tr>
+  <tr><td><code>e2e/messaging_test.go</code></td><td>11</td><td>消息发送、SSE 流、多轮对话、空消息等</td></tr>
+  <tr><td><code>e2e/discovery_test.go</code></td><td>12</td><td>Agent 发现、AgentCard 解析、技能列表等</td></tr>
+  <tr><td><code>e2e/tool_call_test.go</code></td><td>6</td><td>Host 工具调用（list_agents、send_to_agent、get_agent_info）</td></tr>
+  <tr><td><code>e2e/tracing_test.go</code></td><td>8</td><td>Trace 记录、时间线查询、调试追踪输出</td></tr>
+  <tr><td><code>e2e/registry_test.go</code></td><td>6</td><td>Agent 注册、删除、列表、状态管理</td></tr>
+  <tr><td><code>e2e/error_test.go</code></td><td>8</td><td>错误处理、断连、未知 Agent、无效请求等</td></tr>
+</table>
+
+<h3>9.4 Fake Agent</h3>
+
+<p>平台内置测试用 Fake Agent，支持 12+ 种行为模式，用于模拟各种 Agent 响应场景：</p>
+
+<table>
+  <tr><th>模式</th><th>说明</th></tr>
+  <tr><td><code>echo</code></td><td>回显输入文本（默认模式）</td></tr>
+  <tr><td><code>sequence</code></td><td>返回有序事件序列：WORKING -> message -> COMPLETED</td></tr>
+  <tr><td><code>artifact</code></td><td>返回产物事件：WORKING -> artifact -> COMPLETED</td></tr>
+  <tr><td><code>json_response</code></td><td>返回普通 JSON（非 SSE），SSE 请求时回退到 echo</td></tr>
+  <tr><td><code>record_headers</code></td><td>记录并返回所有请求头（用于验证头注入）</td></tr>
+  <tr><td><code>record_url</code></td><td>记录并返回请求 URL（用于验证路径转发）</td></tr>
+  <tr><td><code>full_events</code></td><td>返回完整事件序列：task -> status -> artifact -> message</td></tr>
+  <tr><td><code>error</code></td><td>返回 HTTP 500 错误</td></tr>
+  <tr><td><code>tool_call:list_agents</code></td><td>调用 Host 的 list_agents 工具并返回结果</td></tr>
+  <tr><td><code>tool_call:send_to_agent</code></td><td>调用 Host 的 send_to_agent 工具</td></tr>
+  <tr><td><code>tool_call:get_agent_info</code></td><td>调用 Host 的 get_agent_info 工具</td></tr>
+  <tr><td><code>disconnect_mid_stream</code></td><td>发送一个事件后断开连接</td></tr>
+  <tr><td><code>empty_response</code></td><td>仅返回状态变更事件，无消息内容</td></tr>
+  <tr><td><code>delayed_start</code></td><td>延迟启动（当前等同 echo）</td></tr>
+</table>
+
+<p>启动 Fake Agent：</p>
+
+<pre><code># 默认模式 (echo)，端口 10001
+go run e2e/fake_agent/main.go
+
+# 指定模式和端口
+go run e2e/fake_agent/main.go -name my-agent
+PORT=10002 go run e2e/fake_agent/main.go</code></pre>
+
+<!-- ======================== 10. Docker Compose 部署 ======================== -->
+<h2 id="docker">10. Docker Compose 部署</h2>
+
+<p>平台提供了 Docker Compose 配置，可以一键启动完整的 A2A 平台（Host + 2 个 Fake Agent）。</p>
+
+<h3>10.1 文件位置</h3>
+<pre><code>e2e/docker-compose.yml   # Compose 编排文件
+e2e/Dockerfile.host      # Host 镜像构建文件
+e2e/Dockerfile.agent     # Agent 镜像构建文件</code></pre>
+
+<h3>10.2 快速启动</h3>
+
+<pre><code># 进入 e2e 目录
+cd e2e
+
+# 启动所有服务（后台运行）
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f host</code></pre>
+
+<h3>10.3 服务编排</h3>
+
+<table>
+  <tr><th>服务</th><th>端口</th><th>说明</th></tr>
+  <tr><td><code>host</code></td><td><code>${HOST_PORT:-7860}:7860</code></td><td>A2A Host 控制平面</td></tr>
+  <tr><td><code>fake-agent-a</code></td><td><code>10001:10001</code></td><td>测试 Agent A</td></tr>
+  <tr><td><code>fake-agent-b</code></td><td><code>10002:10002</code></td><td>测试 Agent B</td></tr>
+</table>
+
+<h3>10.4 自定义配置</h3>
+
+<pre><code># 使用自定义 Host 端口
+HOST_PORT=9000 docker-compose up -d
+
+# 停止所有服务
+docker-compose down
+
+# 停止并删除数据卷
+docker-compose down -v</code></pre>
+
+<h3>10.5 部署后验证</h3>
+
+<pre><code># 1. 检查 Host 运行状态
+curl http://localhost:7860/api/capabilities
+
+# 2. 注册 Agent A
+curl -X POST http://localhost:7860/api/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{"url": "http://host.docker.internal:10001"}'
+
+# 3. 发送测试消息
+curl -N -X POST http://localhost:7860/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"agent_name": "fake-agent", "message": "Hello from Docker!"}'</code></pre>
+
+<div class="info-box warning">
+  <strong>网络提示：</strong>在 Docker 容器内访问宿主机服务时，使用 <code>host.docker.internal</code>（Docker Desktop）或宿主机内网 IP。
+  Agent 容器间通信应使用 Docker 网络中的服务名。
+</div>
+
+</main>
+
+</body>
+</html>
