@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"a2a-platform/internal/svc"
+	"a2a-platform/pkg/a2a"
 )
 
 // GetAgents returns a JSON list of all registered agents.
@@ -24,7 +25,7 @@ func GetAgents(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			Version      string   `json:"version"`
 			AgentType    string   `json:"type"`
 			Status       string   `json:"status"`
-			Skills       []string `json:"skills"`
+			Skills       []a2a.Skill  `json:"skills"`
 			ErrorMessage string   `json:"error_message,omitempty"`
 			CreatedAt    string   `json:"created_at"`
 			UpdatedAt    string   `json:"updated_at"`
@@ -32,7 +33,7 @@ func GetAgents(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		out := make([]agentOut, len(agents))
 		for i, a := range agents {
-			var skills []string
+			var skills []a2a.Skill
 			if a.SkillsJSON != "" && a.SkillsJSON != "[]" {
 				_ = json.Unmarshal([]byte(a.SkillsJSON), &skills)
 			}
@@ -69,7 +70,7 @@ func GetAgent(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		var skills []string
+		var skills []a2a.Skill
 		if agent.SkillsJSON != "" && agent.SkillsJSON != "[]" {
 			_ = json.Unmarshal([]byte(agent.SkillsJSON), &skills)
 		}

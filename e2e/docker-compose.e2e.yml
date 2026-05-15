@@ -50,10 +50,11 @@ services:
     build:
       context: ..
       dockerfile: e2e/llm_agent/Dockerfile
+    env_file:
+      - e2e.env
     environment:
       - PORT=10003
       - LLM_BASE_URL=https://token-plan-cn.xiaomimimo.com/v1
-      - LLM_API_KEY=tp-cvg1l8m7kmdevg8xts5j9qt34i9tpvxdj5o57q668da3g5om
       - LLM_MODEL=mimo-v2.5-pro
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:10003/.well-known/agent.json"]

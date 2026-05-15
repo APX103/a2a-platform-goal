@@ -14,3 +14,8 @@
 
 # Data
 *.db
+
+# Environment variables (API keys, tokens)
+.env
+.env.local
+.env.*.local

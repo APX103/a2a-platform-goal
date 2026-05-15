@@ -46,6 +46,7 @@ func Chat(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		// Write task creation event
 		taskData, _ := json.Marshal(map[string]string{
+			"type":          "task",
 			"local_task_id": task.LocalTaskID,
 			"agent_name":    task.AgentName,
 			"state":         string(task.State),

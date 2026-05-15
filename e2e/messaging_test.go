@@ -391,7 +391,7 @@ func TestMessaging_CreateTask(t *testing.T) {
 	defer env.Teardown()
 
 	// Create a task directly via MessageBus
-	task, err := env.SvcCtx.MessageBus.CreateTask("agent-a")
+	task, err := env.SvcCtx.MessageBus.CreateTask("agent-a", "")
 	if err != nil {
 		t.Fatalf("create_task failed: %v", err)
 	}

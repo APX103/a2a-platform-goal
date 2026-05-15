@@ -4,6 +4,8 @@ package e2e
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -451,4 +453,217 @@ func TestDiscovery_DisconnectedAgentDisplay(t *testing.T) {
 	}
 
 	_ = delStatus // suppress unused warning
+}
+
+// TestDiscovery_FilterTasksByStateFailed verifies filtering by FAILED state returns empty.
+func TestDiscovery_FilterTasksByStateFailed(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	env.StartFakeAgent(t, "echo", "fail-state-agent")
+
+	_, s1 := env.PostJSON(t, "/api/chat", map[string]string{
+		"agent_name": "fail-state-agent",
+		"message":    "test",
+	})
+	if s1 != 200 {
+		t.Fatalf("message: expected 200, got %d", s1)
+	}
+
+	tasks, status := env.GetJSONArray(t, "/api/tasks?state=FAILED&agent_name=fail-state-agent")
+	if status != 200 {
+		t.Fatalf("expected 200, got %d", status)
+	}
+	if len(tasks) != 0 {
+		t.Errorf("expected 0 FAILED tasks, got %d", len(tasks))
+	}
+}
+
+// TestDiscovery_CapabilitiesFullStructure verifies all fields in capabilities response.
+func TestDiscovery_CapabilitiesFullStructure(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	caps, status := env.GetJSON(t, "/api/capabilities")
+	if status != 200 {
+		t.Fatalf("expected 200, got %d", status)
+	}
+
+	// Verify required top-level fields
+	requiredFields := []string{"name", "description", "version", "capabilities", "tools"}
+	for _, field := range requiredFields {
+		if caps[field] == nil {
+			t.Errorf("capabilities missing field '%s'", field)
+		}
+	}
+
+	// Verify capabilities.streaming is bool
+	capMap, ok := caps["capabilities"].(map[string]interface{})
+	if !ok {
+		t.Fatal("capabilities.capabilities is not a map")
+	}
+	if _, ok := capMap["streaming"].(bool); !ok {
+		t.Errorf("expected streaming to be bool, got %T", capMap["streaming"])
+	}
+
+	// Verify tools is non-empty array with items that have name and description
+	tools, ok := caps["tools"].([]interface{})
+	if !ok {
+		t.Fatal("tools is not an array")
+	}
+	if len(tools) == 0 {
+		t.Fatal("expected non-empty tools")
+	}
+	for i, tool := range tools {
+		toolMap, ok := tool.(map[string]interface{})
+		if !ok {
+			t.Errorf("tool[%d] is not an object", i)
+			continue
+		}
+		if toolMap["name"] == nil {
+			t.Errorf("tool[%d] missing 'name' field", i)
+		}
+		if toolMap["description"] == nil {
+			t.Errorf("tool[%d] missing 'description' field", i)
+		}
+	}
+}
+
+// TestDiscovery_A2AVersionHeaderValue verifies the A2A-Version header injected by proxy is "1.0".
+func TestDiscovery_A2AVersionHeaderValue(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	// We need to register a record_headers agent, but the built-in StartFakeAgent
+	// doesn't support that directly for proxy use. Instead, we register and use
+	// the MessageBus tool call path.
+	// Actually, let's use a direct approach: register a custom agent server that
+	// records headers and returns them.
+	var headersAgentURL string
+	var capturedHeaders map[string][]string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet && strings.HasSuffix(r.URL.Path, "/.well-known/agent.json") {
+			card := map[string]interface{}{
+				"name":        "headers-agent",
+				"description": "Records headers",
+				"version":     "1.0.0",
+				"url":         headersAgentURL,
+				"capabilities": map[string]bool{"streaming": true},
+				"skills":      []map[string]string{{"id": "record_headers", "name": "record_headers", "description": "records headers"}},
+			}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(card)
+			return
+		}
+		if r.Method == http.MethodPost {
+			// Record headers
+			capturedHeaders = make(map[string][]string)
+			for k, v := range r.Header {
+				capturedHeaders[k] = v
+			}
+			// Return SSE echo response
+			fakeHandleEcho(w, r)
+			return
+		}
+	}))
+	defer server.Close()
+	headersAgentURL = server.URL
+
+	env.RegisterAgent(t, server.URL)
+
+	// Send message through the chat endpoint (which goes through proxy)
+	_, status := env.PostJSON(t, "/api/chat", map[string]string{
+		"agent_name": "headers-agent",
+		"message":    "check version header",
+	})
+	if status != 200 {
+		t.Fatalf("chat: expected 200, got %d", status)
+	}
+
+	if capturedHeaders == nil {
+		t.Fatal("agent did not receive any request")
+	}
+
+	a2aVersion := capturedHeaders["A2a-Version"]
+	if len(a2aVersion) == 0 {
+		// Try lowercase
+		a2aVersion = capturedHeaders["a2a-version"]
+	}
+	if len(a2aVersion) == 0 {
+		t.Errorf("expected A2A-Version header, got headers: %v", capturedHeaders)
+	} else if a2aVersion[0] != "1.0" {
+		t.Errorf("expected A2A-Version=1.0, got %s", a2aVersion[0])
+	}
+}
+
+// TestDiscovery_TaskFields verifies tasks returned by the API have expected fields.
+func TestDiscovery_TaskFields(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	env.StartFakeAgent(t, "echo", "task-fields-agent")
+
+	_, s1 := env.PostJSON(t, "/api/chat", map[string]string{
+		"agent_name": "task-fields-agent",
+		"message":    "test",
+	})
+	if s1 != 200 {
+		t.Fatalf("message: expected 200, got %d", s1)
+	}
+
+	tasks, status := env.GetJSONArray(t, "/api/tasks?agent_name=task-fields-agent")
+	if status != 200 {
+		t.Fatalf("expected 200, got %d", status)
+	}
+	if len(tasks) == 0 {
+		t.Fatal("expected at least 1 task")
+	}
+
+	task, ok := tasks[0].(map[string]interface{})
+	if !ok {
+		t.Fatal("task is not a map")
+	}
+
+	requiredFields := []string{"local_task_id", "agent_name", "state", "created_at"}
+	for _, field := range requiredFields {
+		if task[field] == nil {
+			t.Errorf("task missing required field '%s'", field)
+		}
+	}
+}
+
+// TestDiscovery_ContextContinuation verifies context_id is persisted on tasks.
+func TestDiscovery_ContextContinuationContextID(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	env.StartFakeAgent(t, "echo", "ctx-persist-agent")
+
+	contextID := "persistent-ctx-abc"
+
+	_, s1 := env.PostJSON(t, "/api/chat", map[string]string{
+		"agent_name": "ctx-persist-agent",
+		"message":    "msg with context",
+		"context_id": contextID,
+	})
+	if s1 != 200 {
+		t.Fatalf("message: expected 200, got %d", s1)
+	}
+
+	tasks, status := env.GetJSONArray(t, "/api/tasks?agent_name=ctx-persist-agent")
+	if status != 200 {
+		t.Fatalf("get tasks: expected 200, got %d", status)
+	}
+	if len(tasks) == 0 {
+		t.Fatal("expected at least 1 task")
+	}
+
+	task, ok := tasks[0].(map[string]interface{})
+	if !ok {
+		t.Fatal("task is not a map")
+	}
+
+	if task["context_id"] != contextID {
+		t.Errorf("expected context_id=%s, got %v", contextID, task["context_id"])
+	}
 }

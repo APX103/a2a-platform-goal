@@ -40,10 +40,11 @@ func (mb *MessageBus) SetRegistry(getClient func(name string) *a2a.Client) {
 }
 
 // CreateTask creates a new task record for the given agent and returns it.
-func (mb *MessageBus) CreateTask(agentName string) (*model.TaskRecord, error) {
+func (mb *MessageBus) CreateTask(agentName, contextID string) (*model.TaskRecord, error) {
 	task := &model.TaskRecord{
 		AgentName: agentName,
 		State:     model.TaskStateSubmitted,
+		ContextID: contextID,
 	}
 
 	created, err := mb.taskRepo.Create(task)
@@ -90,7 +91,7 @@ func (mb *MessageBus) SendStreaming(sender, agentName, content, contextID string
 	}
 
 	// Create task
-	task, err := mb.CreateTask(agentName)
+	task, err := mb.CreateTask(agentName, contextID)
 	if err != nil {
 		return nil, nil, fmt.Errorf("send streaming: %w", err)
 	}
@@ -156,11 +157,18 @@ func (mb *MessageBus) SendStreaming(sender, agentName, content, contextID string
 
 		case "status_update":
 			var statusData struct {
-				State string `json:"state"`
+				State  string `json:"state"`
+				Status string `json:"status"`
 			}
 			if err := json.Unmarshal(evt.Data, &statusData); err == nil {
-				oldState := string(task.State)
 				newState := statusData.State
+				if newState == "" {
+					newState = statusData.Status
+				}
+				if newState == "" {
+					continue
+				}
+				oldState := string(task.State)
 				_ = mb.taskRepo.UpdateState(taskID, model.TaskState(newState))
 				task.State = model.TaskState(newState)
 				mb.tracer.RecordTaskUpdate(taskID, oldState, newState)
@@ -173,12 +181,14 @@ func (mb *MessageBus) SendStreaming(sender, agentName, content, contextID string
 
 		case "artifact_update":
 			var artifactData struct {
-				Parts []struct {
-					Text string `json:"text"`
-				} `json:"parts"`
+				Artifact struct {
+					Parts []struct {
+						Text string `json:"text"`
+					} `json:"parts"`
+				} `json:"artifact"`
 			}
 			if err := json.Unmarshal(evt.Data, &artifactData); err == nil {
-				for _, part := range artifactData.Parts {
+				for _, part := range artifactData.Artifact.Parts {
 					if part.Text != "" {
 						mb.tracer.RecordArtifact(taskID, part.Text)
 						if responseText == "" {
@@ -208,8 +218,8 @@ func (mb *MessageBus) SendStreaming(sender, agentName, content, contextID string
 				streamingEvents = append(streamingEvents, StreamingEvent{
 					Type: "message",
 					Data: map[string]interface{}{
-						"role":  msgData.Role,
-						"text":  responseText,
+						"role": msgData.Role,
+						"text": responseText,
 					},
 				})
 			}

@@ -275,6 +275,98 @@ func TestError_ConcurrentRequests(t *testing.T) {
 	}
 }
 
+// TestError_ChatMalformedJSON sends invalid JSON to /api/chat and verifies 400.
+func TestError_ChatMalformedJSON(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	body, status := env.PostRaw(t, "/api/chat", `{invalid json`, "application/json", nil)
+	if status != 400 {
+		t.Fatalf("expected status 400, got %d: %s", status, body)
+	}
+
+	var result map[string]string
+	if err := json.Unmarshal([]byte(body), &result); err != nil {
+		t.Fatalf("failed to parse error JSON: %v (body: %s)", err, body)
+	}
+	if result["error"] == "" {
+		t.Errorf("expected non-empty error message, got: %v", result)
+	}
+}
+
+// TestError_ChatMissingAgentName sends /api/chat without agent_name and verifies 400.
+func TestError_ChatMissingAgentName(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	body, status := env.PostJSON(t, "/api/chat", map[string]string{
+		"message": "hello",
+	})
+	if status != 400 {
+		t.Fatalf("expected status 400, got %d: %s", status, body)
+	}
+
+	var result map[string]string
+	if err := json.Unmarshal([]byte(body), &result); err != nil {
+		t.Fatalf("failed to parse error JSON: %v (body: %s)", err, body)
+	}
+	if !strings.Contains(result["error"], "agent_name") {
+		t.Errorf("expected error to mention 'agent_name', got: %s", result["error"])
+	}
+}
+
+// TestError_ChatMissingMessage sends /api/chat without message and verifies 400.
+func TestError_ChatMissingMessage(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	body, status := env.PostJSON(t, "/api/chat", map[string]string{
+		"agent_name": "some-agent",
+	})
+	if status != 400 {
+		t.Fatalf("expected status 400, got %d: %s", status, body)
+	}
+
+	var result map[string]string
+	if err := json.Unmarshal([]byte(body), &result); err != nil {
+		t.Fatalf("failed to parse error JSON: %v (body: %s)", err, body)
+	}
+	if result["error"] == "" {
+		t.Errorf("expected non-empty error message, got: %v", result)
+	}
+}
+
+// TestError_ChatNonexistentAgent sends /api/chat to a nonexistent agent and verifies error.
+func TestError_ChatNonexistentAgent(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	body, status := env.PostJSON(t, "/api/chat", map[string]string{
+		"agent_name": "nonexistent-chat-agent",
+		"message":    "hello",
+	})
+	// Chat endpoint sets SSE headers before checking agent, so we get 200 with SSE error event
+	if status != 200 {
+		t.Fatalf("expected status 200 (SSE), got %d: %s", status, body)
+	}
+
+	// Should contain an error in the SSE stream
+	if !strings.Contains(body, "error") {
+		t.Errorf("expected SSE stream to contain error event, got: %s", body)
+	}
+}
+
+// TestError_ProxyNonPOSTMethod sends GET to /agent/:name and verifies non-200.
+func TestError_ProxyNonPOSTMethod(t *testing.T) {
+	env := SetupTestEnv(t)
+	defer env.Teardown()
+
+	body, status := env.GetRaw(t, "/agent/some-agent", nil)
+	if status == 200 {
+		t.Fatalf("expected non-200 for GET to /agent/:name, got %d: %s", status, body)
+	}
+}
+
 // TestError_SelfMessaging sends a message from agent-a to itself via the proxy
 // and verifies success.
 func TestError_SelfMessaging(t *testing.T) {

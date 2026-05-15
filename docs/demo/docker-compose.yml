@@ -1,0 +1,54 @@
+services:
+  host:
+    build:
+      context: ../..
+      dockerfile: e2e/Dockerfile.host
+    environment:
+      - DATA_SOURCE=file:/data/a2a_platform.db?cache=shared&_journal_mode=WAL
+    volumes:
+      - host-data:/data
+    ports:
+      - "7860:7860"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:7860/api/capabilities"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+      start_period: 10s
+
+  agent-alpha:
+    build:
+      context: ../..
+      dockerfile: e2e/llm_agent/Dockerfile
+    environment:
+      - PORT=10001
+      - HOST_URL=http://host:7860
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://token-plan-cn.xiaomimimo.com/v1}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_MODEL=${LLM_MODEL:-mimo-v2.5-pro}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:10001/.well-known/agent.json"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+      start_period: 5s
+
+  agent-beta:
+    build:
+      context: ../..
+      dockerfile: e2e/llm_agent/Dockerfile
+    environment:
+      - PORT=10002
+      - HOST_URL=http://host:7860
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://token-plan-cn.xiaomimimo.com/v1}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_MODEL=${LLM_MODEL:-mimo-v2.5-pro}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:10002/.well-known/agent.json"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  host-data:
