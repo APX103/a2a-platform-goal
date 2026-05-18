@@ -3,7 +3,6 @@ package messagebus
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"a2a-platform/internal/model"
 	"a2a-platform/internal/repository"
@@ -270,21 +269,3 @@ func (mb *MessageBus) GetDebugTrace(taskID string) string {
 	return mb.tracer.GetDebugTrace(taskID)
 }
 
-// parseTextFromParts extracts text from SSE event parts data.
-func parseTextFromParts(data json.RawMessage) string {
-	var msgData struct {
-		Parts []struct {
-			Text string `json:"text"`
-		} `json:"parts"`
-	}
-	if err := json.Unmarshal(data, &msgData); err != nil {
-		return ""
-	}
-	var texts []string
-	for _, part := range msgData.Parts {
-		if part.Text != "" {
-			texts = append(texts, part.Text)
-		}
-	}
-	return strings.Join(texts, "")
-}

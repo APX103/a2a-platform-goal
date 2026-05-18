@@ -1,4 +1,4 @@
-// +build !docker
+//go:build !docker
 
 package e2e
 
@@ -403,7 +403,6 @@ func TestDiscovery_DisconnectedAgentDisplay(t *testing.T) {
 	env := SetupTestEnv(t)
 	defer env.Teardown()
 
-	// Register a connected agent first
 	env.StartFakeAgent(t, "echo", "disc-agent")
 
 	// Verify it's connected
@@ -417,15 +416,7 @@ func TestDiscovery_DisconnectedAgentDisplay(t *testing.T) {
 		}
 	}
 
-	// Disconnect the agent via DELETE
-	_, delStatus := env.PostJSON(t, "/api/agents/disc-agent", nil)
-	// DELETE requires a different method - use GetRaw
-	// Actually, let's use DeleteAgent
-	traceBody, _ := json.Marshal(nil)
-	_, delStatus = env.PostRaw(t, "/api/agents/disc-agent", string(traceBody), "", map[string]string{})
-
-	// The DELETE endpoint needs a proper DELETE request, which PostRaw doesn't do.
-	// Instead, let's directly disconnect via registry
+	// Disconnect via registry
 	env.SvcCtx.Registry.Disconnect("disc-agent")
 
 	// Verify status is disconnected
@@ -451,8 +442,6 @@ func TestDiscovery_DisconnectedAgentDisplay(t *testing.T) {
 	if !found {
 		t.Error("disc-agent not found after disconnect")
 	}
-
-	_ = delStatus // suppress unused warning
 }
 
 // TestDiscovery_FilterTasksByStateFailed verifies filtering by FAILED state returns empty.

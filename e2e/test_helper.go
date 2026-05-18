@@ -1,4 +1,4 @@
-// +build !docker
+//go:build !docker
 
 package e2e
 
@@ -10,11 +10,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"os/exec"
 	"strings"
 	"testing"
-	"time"
 
 	"a2a-platform/internal/config"
 	"a2a-platform/internal/handler"
@@ -29,24 +26,10 @@ import (
 
 // TestEnv holds the test Host server and its dependencies.
 type TestEnv struct {
-	Host      *httptest.Server
-	HostURL   string
-	DB        *sql.DB
-	SvcCtx    *svc.ServiceContext
-	FakeAgent *exec.Cmd
-}
-
-// fakeAgentBinary returns the path to the pre-built fake agent binary.
-func fakeAgentBinary() string {
-	// Look for the binary next to the test executable or at a known location.
-	// For testing, we use the existing binary at the project root.
-	cwd, _ := os.Getwd()
-	// Try project root
-	bin := cwd + "/../fake_agent"
-	if _, err := os.Stat(bin); err == nil {
-		return bin
-	}
-	return "e2e/fake_agent"
+	Host    *httptest.Server
+	HostURL string
+	DB      *sql.DB
+	SvcCtx  *svc.ServiceContext
 }
 
 // SetupTestEnv creates a Host server backed by an in-memory SQLite database.
@@ -140,10 +123,6 @@ func SetupTestEnv(t *testing.T) *TestEnv {
 
 // Teardown cleans up the test environment.
 func (e *TestEnv) Teardown() {
-	if e.FakeAgent != nil && e.FakeAgent.Process != nil {
-		e.FakeAgent.Process.Kill()
-		e.FakeAgent.Wait()
-	}
 	if e.Host != nil {
 		e.Host.Close()
 	}
@@ -152,43 +131,13 @@ func (e *TestEnv) Teardown() {
 	}
 }
 
-// StartFakeAgent starts the fake agent binary on a random port.
+// StartFakeAgent starts a fake agent as an in-process httptest.Server.
 // It returns the URL of the running fake agent.
 func (e *TestEnv) StartFakeAgent(t *testing.T, mode string, name string) string {
 	t.Helper()
 	if name == "" {
 		name = "fake-agent"
 	}
-
-	bin := fakeAgentBinary()
-	cmd := exec.Command(bin, "-name", name)
-	cmd.Env = append(os.Environ(), "PORT=0")
-
-	// Capture output for debugging on failure
-	var output strings.Builder
-	cmd.Stdout = &output
-	cmd.Stderr = &output
-
-	if err := cmd.Start(); err != nil {
-		t.Fatalf("start fake agent: %v (output: %s)", err, output.String())
-	}
-
-	e.FakeAgent = cmd
-
-	// Wait briefly for startup
-	time.Sleep(100 * time.Millisecond)
-
-	// Read the port from stdout or find a way to get it
-	// The fake agent prints: Fake agent 'name' starting on :PORT
-	// We need to extract the port. Since PORT=0 won't work well with exec,
-	// let's use a different approach: use httptest.NewServer for the fake agent.
-
-	// Kill this process and use httptest instead
-	cmd.Process.Kill()
-	cmd.Wait()
-	e.FakeAgent = nil
-
-	// Use httptest approach - start a real HTTP server that mimics fake agent behavior
 	return e.startFakeAgentHTTPTest(t, mode, name)
 }
 
